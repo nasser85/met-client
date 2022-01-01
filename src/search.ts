@@ -1,7 +1,7 @@
 import { API_BASE_URL } from './constants'
 import { GetObjectsResponse, getObjectsByPage, GetAllObjectIDsResponse } from './objects'
 
-const SEARCH_URL = `${API_BASE_URL}search`
+export const SEARCH_URL = `${API_BASE_URL}search`
 
 interface MetDate {
   year: number
@@ -16,6 +16,7 @@ interface DateRange {
 interface SearchOptions {
   geoLocation?: string[]
   dateRange?: DateRange
+  hasImages?: boolean
 }
 
 const getDateInteger = ({ year, era }: MetDate): number => era === 'BC' ? -1 * year : year
@@ -25,7 +26,8 @@ const getSearchObjectIDs = async (q: string, options?: SearchOptions): Promise<G
   const dateQuery = options?.dateRange
     ? `&dateBegin=${getDateInteger(options.dateRange.dateBegin)}&dateEnd=${getDateInteger(options.dateRange.dateEnd)}`
     : ''
-  const result = await fetch(`${SEARCH_URL}?q=${q.replace(/ /g, '+')}${locationQuery}${dateQuery}`)
+  const hasImagesQuery = options?.hasImages ? '&hasImages=true' : ''
+  const result = await fetch(`${SEARCH_URL}?q=${q.replace(/ /g, '+')}${locationQuery}${dateQuery}${hasImagesQuery}`)
 
   return result.json()
 }

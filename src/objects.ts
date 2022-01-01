@@ -1,5 +1,6 @@
 import { API_BASE_URL, OBJECTS_PER_PAGE } from './constants'
 import { getObjectByID, MetObject } from './object'
+import { SEARCH_URL } from './search'
 
 export const OBJECTS_URL = `${API_BASE_URL}objects`
 
@@ -17,11 +18,15 @@ export interface GetAllObjectIDsResponse {
 
 interface GetObjectsOptions {
   departmentIds?: string[]
+  hasImages?: boolean
 }
 
-const getAllObjectIDs = async (departmentIds?: string[]): Promise<GetAllObjectIDsResponse> => {
-  const departmentsQuery = departmentIds?.length ? `?departmentIds=${departmentIds.join('|')}` : ''
-  const result = await fetch(`${OBJECTS_URL}${departmentsQuery}`)
+const getAllObjectIDs = async (departmentIds?: string[], hasImages?: boolean): Promise<GetAllObjectIDsResponse> => {
+  const departmentsQuery = departmentIds?.length ? `departmentIds=${departmentIds.join('|')}` : ''
+  const imagesQuery = 'q=1+2+3+4+5+6+7+8+9+0&hasImages=true'
+  const requestUrl = hasImages ? `${SEARCH_URL}?${imagesQuery}${departmentsQuery.length ? `&${departmentsQuery}`: ''}` : `${OBJECTS_URL}?${departmentsQuery}`
+  
+  const result = await fetch(requestUrl)
 
   return result.json()
 }
@@ -46,7 +51,7 @@ export const getObjectsByPage = async (page: number, total: number, objectIDs: n
 }
 
 export const getObjects = async (page: number = 1, options?: GetObjectsOptions): Promise<GetObjectsResponse> => {
-  const { total, objectIDs } = await getAllObjectIDs(options?.departmentIds)
+  const { total, objectIDs } = await getAllObjectIDs(options?.departmentIds, options?.hasImages)
   
   return getObjectsByPage(page, total, objectIDs)
 }
