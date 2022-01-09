@@ -17,12 +17,12 @@ export interface GetAllObjectIDsResponse {
 }
 
 interface GetObjectsOptions {
-  departmentIds?: string[]
+  departmentId?: number
   hasImages?: boolean
 }
 
-const getAllObjectIDs = async (departmentIds?: string[], hasImages?: boolean): Promise<GetAllObjectIDsResponse> => {
-  const departmentsQuery = departmentIds?.length ? `departmentIds=${departmentIds.join('|')}` : ''
+const getAllObjectIDs = async (departmentId?: number, hasImages?: boolean): Promise<GetAllObjectIDsResponse> => {
+  const departmentsQuery = departmentId ? `departmentId${hasImages ? '' : 's'}=${departmentId}` : ''
   const imagesQuery = 'q=1+2+3+4+5+6+7+8+9+0&hasImages=true'
   const requestUrl = hasImages ? `${SEARCH_URL}?${imagesQuery}${departmentsQuery.length ? `&${departmentsQuery}`: ''}` : `${OBJECTS_URL}?${departmentsQuery}`
   
@@ -51,7 +51,7 @@ export const getObjectsByPage = async (page: number, total: number, objectIDs: n
 }
 
 export const getObjects = async (page: number = 1, options?: GetObjectsOptions): Promise<GetObjectsResponse> => {
-  const { total, objectIDs } = await getAllObjectIDs(options?.departmentIds, options?.hasImages)
+  const { total, objectIDs } = await getAllObjectIDs(options?.departmentId, options?.hasImages)
   
   return getObjectsByPage(page, total, objectIDs)
 }
